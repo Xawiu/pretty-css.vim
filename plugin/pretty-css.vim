@@ -1,6 +1,6 @@
 " pretty-css.vim - Simple Vim plugin to format minified or messy CSS
 " without any external dependencies.
-" Author: Zbigniew Śliwiński <zibias at gmail.com>
+" Author: Zbigniew Śliwiński <zeebeer at gmail.com>
 " Usage:  :PrettyCSS  - formats current buffer (must be CSS)
 
 if exists("g:loaded_pretty_css")
@@ -110,7 +110,7 @@ function! PrettyCssFormat()
   let &softtabstop = l:sts
   let &expandtab   = l:et
 
-  highlight MySuccessMsg ctermfg=green guifg=green
+  highlight MySuccessMsg ctermfg=lightgreen guifg=lightgreen
   echohl MySuccessMsg
   echo "PrettyCSS: Formatting complete."
   echohl None
