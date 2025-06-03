@@ -74,6 +74,9 @@ function! PrettyCssFormat()
 
   " Remove any extra semicolon before }
   silent! %s/;\s*}/}/g
+  
+  " Remove spaces after ':' in lines ending with '}' (e.g., a: hover → a:hover)
+  silent! g/{\s*$/s/:\s\+/:/g
 
   " Add an empty line after every line that contains only a closing brace (}) unless the next line is another closing brace or a comment boundary
   let i = 1
