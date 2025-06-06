@@ -28,7 +28,8 @@ function! PrettyCssFormat()
   silent! %s/\v([^;{}])}/\1;\r}/g
 
   " Ensure lines not ending in ; or } get a semicolon before newline
-  silent! %s/\v([^\s;{}])\s*[\r\n]/\1;\r/g
+  "silent! %s/\v([^\s;{}])\s*[\r\n]/\1;\r/g
+  silent! %s/\v([^\s;{},])\s*[\r\n]/\1;\r/g
 
   " Break line **before** opening comment `/*`
   silent! %s/\v(\/\*)/\r\1/g
@@ -49,8 +50,8 @@ function! PrettyCssFormat()
   silent! %s/\s*[,:]\s*/& /g
 
   " Join lines ending with ', ' with the following line (especially for transitions)
-  silent! %s/\v(0\.\d+s,)\s+/\1 /g
-  silent! %g/, $/join
+  "silent! %s/\v(0\.\d+s,)\s+/\1 /g
+  " silent! %g/, $/join
 
   " Remove unnecessary spaces
   silent! %s/\s*;[ ]*/;/g      " after ;
@@ -62,6 +63,7 @@ function! PrettyCssFormat()
 
   " Remove spaces before colon at start of line
   silent! %s/^\s*:\s\+/:/g
+  silent! :%s/\s\+:/\:/g
 
   " Clear lines containing only semicolon or whitespace
   silent! %s/\v^\s*(;)?\s*$//g
@@ -84,16 +86,14 @@ function! PrettyCssFormat()
 
   " Remove any extra semicolon before }
   silent! %s/;\s*}/}/g
-
-  " Remove spaces after ':' in lines ending with '}' (e.g., a:hover)
-  silent! g/{\s*$/s/:\s\+/:/g
+  silent! %s/{;/{/g
 
   " Add an empty line after closing brace unless followed by another closing brace or comment
   let i = 1
   while i <= line('$')
     let current = getline(i)
     let next = getline(i + 1)
-  
+
     if current =~ '^\s*}\s*$' 
           \ && next !~ '^\s*}\s*$' 
           \ && next !~ '^\s*\*/\s*$'
@@ -101,9 +101,23 @@ function! PrettyCssFormat()
       call append(i, '')
       let i += 1
     endif
-  
+
     let i += 1
   endwhile
+
+  " Join lines ending with ', ' with the following line
+  let l = 1
+  while l <= line('$')
+    if getline(l) =~ ',\s*$'
+      call setline(l, getline(l) . substitute(getline(l+1), '^\s*', '', ''))
+      call deletebufline('%', l+1)
+    else
+      let l += 1
+    endif
+  endwhile
+
+  " Now: Remove space after colon for lines ending with {
+  silent! g/{\s*$/s/:\s\+/:/g
 
   " Save current indentation settings
   let l:sw  = &shiftwidth
@@ -178,7 +192,9 @@ function! MinifyCss()
   " Trim trailing whitespace or tabs from the last line
   silent! $s/\s\+$//
 
-  echohl Identifier
+  highlight MySuccessMsg ctermfg=lightgreen guifg=lightgreen
+  echohl MySuccessMsg
   echo "MinifyCSS: Minification complete."
   echohl None
 endfunction
+
