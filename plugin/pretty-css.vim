@@ -49,9 +49,11 @@ function! PrettyCssFormat()
   " Enforce single space after comma or colon
   silent! %s/\s*[,:]\s*/& /g
 
-  " Join lines ending with ', ' with the following line (especially for transitions)
-  "silent! %s/\v(0\.\d+s,)\s+/\1 /g
-  " silent! %g/, $/join
+  " Enforce single space after colon except in URLs or quoted strings
+  silent! %s/\v:(\S)/\=match(getline('.'), 'url([^)]*'.submatch(0)) >= 0 || match(getline('.'), '"[^"]*'.submatch(0)) >= 0 ? submatch(0) : ': '.submatch(1)/g
+
+  " Remove spaces before and after '//' in URLs (http: // www.example.com → http://www.example.com)
+  silent! %s/\v(https?|ftp|file|mailto|tel|data|blob|chrome-extension|moz-extension):\s*\/\/\s*/\1:\/\//g
 
   " Remove unnecessary spaces
   silent! %s/\s*;[ ]*/;/g      " after ;
